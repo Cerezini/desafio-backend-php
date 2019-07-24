@@ -16,7 +16,7 @@ return [
             'driver'    => 'mysql',
             'host'      => env('DB_URL_MYSQL', 'localhost'),
             'port'      => 3306,
-            'database'  => 'users',
+            'database'  => 'picpay-backend',
             'username'  => 'root',
             'password'  => 'root',
             'charset'   => env('DB_CHARSET', 'utf8'),

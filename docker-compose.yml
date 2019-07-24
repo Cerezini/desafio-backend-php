@@ -33,3 +33,15 @@ services:
     environment:
       - MYSQL_DATABASE=users
       - MYSQL_ROOT_PASSWORD=root
+
+  phpmyadmin:
+    container_name: phpmyadmin
+    image: phpmyadmin/phpmyadmin
+    depends_on:
+      - users-db-mysql
+    ports:
+      - 8080:80
+    links:
+      - users-db-mysql
+    environment:
+      - PMA_ARBITRARY=1
