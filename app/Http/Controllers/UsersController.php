@@ -2,13 +2,34 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Consumer;
+use App\Models\Seller;
 use App\Models\User;
 use Illuminate\Http\Request;
 
 class UsersController extends Controller
 {
-    public function createCostumer() {
-        return "Test createCostumer";
+    public function createConsumer(Request $request) {
+        $consumerSameUsername = Consumer::where('username', $request->username)->first();
+
+        if ($consumerSameUsername != null) {
+            return "ERROR 422";
+        }
+
+        $sellerSameUsername = Seller::where('username', $request->username)->first();
+
+        if ($sellerSameUsername != null) {
+            return "ERROR 422";
+        }
+
+        $consumer = new Consumer;
+
+        $consumer->user_id = $request->user_id;
+        $consumer->username = $request->username;
+        
+        $consumer->save();
+    
+        return $consumer;
     }
 
     public function createSeller() {
@@ -45,7 +66,24 @@ class UsersController extends Controller
     }
 
     public function getUser($id) {
-        return "Test getUser id = " . $id;
+        $user = User::find($id);
+        
+        if ($user == null) {
+            return "ERROR 422";
+        } 
+        
+        $result = [
+            'user' => $user,
+            'accounts' => [
+                'consumer' => null,
+                'seller' => null
+            ]
+        ];
+
+        $result['accounts']['consumer'] = Consumer::where('user_id', $id)->first();
+        $result['accounts']['seller'] = Seller::where('user_id', $id)->first();
+
+        return $result;
     }
 
     public function getUsers() {
