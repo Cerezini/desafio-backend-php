@@ -10,6 +10,9 @@ use Illuminate\Http\Request;
 class UsersController extends Controller
 {
     public function createConsumer(Request $request) {
+        // Validate the request...
+        // Validate user already have consumer
+
         $consumerSameUsername = Consumer::where('username', $request->username)->first();
 
         if ($consumerSameUsername != null) {
@@ -32,8 +35,33 @@ class UsersController extends Controller
         return $consumer;
     }
 
-    public function createSeller() {
-        return "Test createSeller";
+    public function createSeller(Request $request) {
+        // Validate the request...
+        // Validate user already have seller
+
+        $consumerSameUsername = Consumer::where('username', $request->username)->first();
+
+        if ($consumerSameUsername != null) {
+            return "ERROR 422";
+        }
+
+        $sellerSameUsername = Seller::where('username', $request->username)->first();
+
+        if ($sellerSameUsername != null) {
+            return "ERROR 422";
+        }
+
+        $seller = new Seller;
+
+        $seller->cnpj = $request->cnpj;
+        $seller->fantasy_name = $request->fantasy_name;
+        $seller->social_name = $request->social_name;
+        $seller->user_id = $request->user_id;
+        $seller->username = $request->username;
+        
+        $seller->save();
+    
+        return $seller;
     }
     
     public function createUser (Request $request)
