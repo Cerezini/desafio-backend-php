@@ -114,7 +114,20 @@ class UsersController extends Controller
         return $result;
     }
 
-    public function getUsers() {
-        return "Test getUsers";
+    public function getUsers(Request $request) {
+        if (!$request->filled('q') || $request->q[0] == '/') {
+            return User::orderBy('full_name', 'asc')->get();
+        }
+
+        $query = $request->q . '%';
+
+        return User::leftJoin('consumers', 'users.id', '=', 'consumers.user_id')
+            ->leftJoin('sellers', 'users.id', '=', 'sellers.user_id')
+            ->where('users.full_name', 'like', $query)
+            ->orWhere('consumers.username', 'like', $query)
+            ->orWhere('sellers.username', 'like', $query)
+            ->select('users.*')
+            ->orderBy('full_name', 'asc')
+            ->get();
     }
 }
