@@ -64,8 +64,7 @@ class UsersController extends Controller
         return $seller;
     }
     
-    public function createUser (Request $request)
-    {
+    public function createUser (Request $request) {
         // Validate the request...
 
         $userSameCpf = User::where('cpf', $request->cpf)->first();
@@ -93,8 +92,8 @@ class UsersController extends Controller
         return $user;
     }
 
-    public function getUser($id) {
-        $user = User::find($id);
+    public function getUser($user_id) {
+        $user = User::find($user_id);
         
         if ($user == null) {
             return "ERROR 422";
@@ -108,8 +107,8 @@ class UsersController extends Controller
             ]
         ];
 
-        $result['accounts']['consumer'] = Consumer::where('user_id', $id)->first();
-        $result['accounts']['seller'] = Seller::where('user_id', $id)->first();
+        $result['accounts']['consumer'] = Consumer::where('user_id', $user_id)->first();
+        $result['accounts']['seller'] = Seller::where('user_id', $user_id)->first();
 
         return $result;
     }
