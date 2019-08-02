@@ -20,11 +20,30 @@ class TransactionsController extends Controller
         $transaction->transaction_date = Carbon::now();
         
         $transaction->save();
-    
-        return $transaction;
+
+        return [
+            'id' => $transaction->id,
+            'payee_id' => $transaction->payee_id,
+            'payer_id' => $transaction->payer_id,
+            'transaction_date' => $transaction->transaction_date->toJson(),
+            'value' => $transaction->value,
+        ];
     }
 
     public function getTransaction($transaction_id) {
-        return Transaction::find($transaction_id);
+
+        $transaction = Transaction::find($transaction_id);
+
+        if ($transaction == null) {
+            return 'ERRO 404';
+        }
+
+        return [
+            'id' => $transaction->id,
+            'payee_id' => $transaction->payee_id,
+            'payer_id' => $transaction->payer_id,
+            'transaction_date' => $transaction->transaction_date->toJson(),
+            'value' => $transaction->value,
+        ];
     }
 }
