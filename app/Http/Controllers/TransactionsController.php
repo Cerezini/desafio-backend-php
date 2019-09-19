@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Transaction;
 use Carbon\Carbon;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 
 class TransactionsController extends Controller
@@ -12,6 +13,14 @@ class TransactionsController extends Controller
         // Validate if users exist
         // Validate value in external http service
 
+        $http = new Client();
+            
+        $response = $http->request('GET', 'http://api-node:8001/transaction?value=' . $request->value, ['http_errors' => false]);
+
+        if ($response->getStatusCode() != 200) {
+            return 'Transação não autorizada'; 
+        }
+    	
         $transaction = new Transaction;
 
         $transaction->payee_id = $request->payee_id;
