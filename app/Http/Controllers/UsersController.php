@@ -37,21 +37,42 @@ class UsersController extends Controller
     }
 
     public function createSeller(Request $request) {
-        // Validate the request...
-        // Validate user already have seller
+        // Request validation
+        $validator = Validator::make($request->all(), [
+            'cnpj' => 'required|string|regex:/^\d{14}/i',
+            'fantasy_name' => 'required|string|max:255',
+            'social_name' => 'required|string|max:255',
+            'user_id' => 'required|integer',
+            'username' => 'required|string|max:255'
+        ]);
 
-        $consumerSameUsername = Consumer::where('username', $request->username)->first();
-
-        if ($consumerSameUsername != null) {
-            return "ERROR 422";
+        if ($validator->fails()) {
+            return response()->json([
+                'code' => '422',
+                'message' => 'Erro de validação dos campos'
+            ], 422);
         }
 
-        $sellerSameUsername = Seller::where('username', $request->username)->first();
+        $consumerSameUsername = Consumer::where('username', $request->username)
+            ->select('id')
+            ->first();
 
-        if ($sellerSameUsername != null) {
-            return "ERROR 422";
-        }
+        $sellerSameUsername = Seller::where('username', $request->username)
+            ->select('id')
+            ->first();     
+            
+        $userHasSeller = Seller::where('user_id', $request->user_id)
+            ->select('id')
+            ->first(); 
 
+        if ($consumerSameUsername != null || $sellerSameUsername != null || $userHasSeller != null) {
+            return response()->json([
+                'code' => '422',
+                'message' => 'Erro de validação dos campos'
+            ], 422);
+        }       
+
+        // Save seller
         $seller = new Seller;
 
         $seller->cnpj = $request->cnpj;
@@ -94,6 +115,7 @@ class UsersController extends Controller
             ], 422);
         }
 
+        // Save user
         $user = new User;
 
         $user->cpf = $request->cpf;
