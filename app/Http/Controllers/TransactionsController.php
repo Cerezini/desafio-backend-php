@@ -2,25 +2,60 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Transaction;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class TransactionsController extends Controller
 {
     public function createTransaction(Request $request) {
-        // Validate if users exist
-        // Validate value in external http service
+        
+        // Request validation
+        $validator = Validator::make($request->all(), [
+            'payee_id' => 'required|integer',
+            'payer_id' => 'required|integer',
+            'value' => 'required|numeric',
+        ]);
 
+        if ($validator->fails()) {
+            return response()->json([
+                'code' => '422',
+                'message' => 'Erro de validação dos campos 1'
+            ], 422);
+        }
+
+        $users = User::whereIn('id', [$request->payee_id, $request->payer_id])
+            ->select('id')
+            ->get();
+
+        if ($users->count() != 2) {
+            return response()->json([
+                'code' => '422',
+                'message' => 'Erro de validação dos campos'
+            ], 422);
+        }
+
+        // Transaction validation
         $http = new Client();
             
         $response = $http->request('GET', 'http://api-node:8001/transaction?value=' . $request->value, ['http_errors' => false]);
 
-        if ($response->getStatusCode() != 200) {
-            return 'Transação não autorizada'; 
+        if ($response->getStatusCode() == 401) {
+            return response()->json([
+                'code' => '401',
+                'message' => 'Transação não autorizada'
+            ], 401);
+        } elseif ($response->getStatusCode() != 200) {
+            return response()->json([
+                'code' => '500',
+                'message' => 'Erro interno do servidor'
+            ], 500);
         }
-    	
+        
+        // Save transaction
         $transaction = new Transaction;
 
         $transaction->payee_id = $request->payee_id;
@@ -44,7 +79,10 @@ class TransactionsController extends Controller
         $transaction = Transaction::find($transaction_id);
 
         if ($transaction == null) {
-            return 'ERRO 404';
+            return response()->json([
+                'code' => '404',
+                'message' => 'Transação não encontrada'
+            ], 404);
         }
 
         return [
