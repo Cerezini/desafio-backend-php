@@ -111,7 +111,10 @@ class UsersController extends Controller
         $user = User::find($user_id);
         
         if ($user == null) {
-            return "ERROR 422";
+            return response()->json([
+                'code' => '404',
+                'message' => 'Usuário não encontrado'
+            ], 404);
         } 
         
         $result = [
