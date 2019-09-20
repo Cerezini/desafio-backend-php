@@ -23,7 +23,7 @@ class TransactionsController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'code' => '422',
-                'message' => 'Erro de validação dos campos 1'
+                'message' => 'Erro de validação dos campos'
             ], 422);
         }
 

@@ -6,6 +6,7 @@ use App\Models\Consumer;
 use App\Models\Seller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class UsersController extends Controller
 {
@@ -65,18 +66,32 @@ class UsersController extends Controller
     }
     
     public function createUser (Request $request) {
-        // Validate the request...
+        // Request validation
+        $validator = Validator::make($request->all(), [
+            'cpf' => 'required|string|regex:/^\d{11}/i',
+            'email' => 'required|string|email|max:255',
+            'full_name' => 'required|string|max:255',
+            'password' => 'required|string|max:255',
+            'phone_number' => 'required|string|max:255'
+        ]);
 
-        $userSameCpf = User::where('cpf', $request->cpf)->first();
-
-        if ($userSameCpf != null) {
-            return "ERROR 422";
+        if ($validator->fails()) {
+            return response()->json([
+                'code' => '422',
+                'message' => 'Erro de validação dos campos'
+            ], 422);
         }
 
-        $userSameEmail = User::where('email', $request->email)->first();
+        $usersUsingCpfOrEmail = User::where('cpf', $request->cpf)
+            ->orWhere('email', $request->email)
+            ->select('id')
+            ->get();
 
-        if ($userSameEmail != null) {
-            return "ERROR 422";
+        if ($usersUsingCpfOrEmail->count() > 0) {
+            return response()->json([
+                'code' => '422',
+                'message' => 'Erro de validação dos campos'
+            ], 422);
         }
 
         $user = new User;
