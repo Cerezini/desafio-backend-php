@@ -67,24 +67,20 @@ class UsersController extends Controller
             ], 422);
         }
 
-        $consumerSameUsername = Consumer::where('username', $request->username)
-            ->select('id')
-            ->first();
+        $consumerSameUsername = Consumer::where('username', $request->username)->exists();
 
-        $sellerSameUsername = Seller::where('username', $request->username)
-            ->select('id')
-            ->first();     
-            
-        $userHasSeller = Seller::where('user_id', $request->user_id)
-            ->select('id')
-            ->first(); 
+        $sellerSameUsername = Seller::where('username', $request->username)->exists();     
+        
+        $userExists = User::where('id', $request->user_id)->exists();
 
-        if ($consumerSameUsername != null || $sellerSameUsername != null || $userHasSeller != null) {
+        $userHasSeller = Seller::where('user_id', $request->user_id)->exists();; 
+
+        if (!$userExists || $userHasSeller || $consumerSameUsername || $sellerSameUsername) {
             return response()->json([
                 'code' => '422',
                 'message' => 'Erro de validação dos campos'
             ], 422);
-        }       
+        }     
 
         // Save seller
         $seller = new Seller;
@@ -117,12 +113,11 @@ class UsersController extends Controller
             ], 422);
         }
 
-        $usersUsingCpfOrEmail = User::where('cpf', $request->cpf)
+        $cpfOrEmailUsed = User::where('cpf', $request->cpf)
             ->orWhere('email', $request->email)
-            ->select('id')
-            ->get();
+            ->exists();
 
-        if ($usersUsingCpfOrEmail->count() > 0) {
+        if ($cpfOrEmailUsed) {
             return response()->json([
                 'code' => '422',
                 'message' => 'Erro de validação dos campos'
