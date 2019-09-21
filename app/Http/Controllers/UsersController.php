@@ -11,21 +11,35 @@ use Illuminate\Support\Facades\Validator;
 class UsersController extends Controller
 {
     public function createConsumer(Request $request) {
-        // Validate the request...
-        // Validate user already have consumer
+        // Request validation
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|integer',
+            'username' => 'required|string|max:255'
+        ]);
 
-        $consumerSameUsername = Consumer::where('username', $request->username)->first();
-
-        if ($consumerSameUsername != null) {
-            return "ERROR 422";
+        if ($validator->fails()) {
+            return response()->json([
+                'code' => '422',
+                'message' => 'Erro de validação dos campos'
+            ], 422);
         }
 
-        $sellerSameUsername = Seller::where('username', $request->username)->first();
+        $consumerSameUsername = Consumer::where('username', $request->username)->exists();
 
-        if ($sellerSameUsername != null) {
-            return "ERROR 422";
-        }
+        $sellerSameUsername = Seller::where('username', $request->username)->exists();     
+        
+        $userExists = User::where('id', $request->user_id)->exists();
 
+        $userHasConsumer = Consumer::where('user_id', $request->user_id)->exists();; 
+
+        if (!$userExists || $userHasConsumer || $consumerSameUsername || $sellerSameUsername) {
+            return response()->json([
+                'code' => '422',
+                'message' => 'Erro de validação dos campos'
+            ], 422);
+        } 
+
+        // Save Consumer
         $consumer = new Consumer;
 
         $consumer->user_id = $request->user_id;
