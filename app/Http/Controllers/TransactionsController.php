@@ -90,7 +90,7 @@ class TransactionsController extends Controller
             'payee_id' => $transaction->payee_id,
             'payer_id' => $transaction->payer_id,
             'transaction_date' => $transaction->transaction_date->toJson(),
-            'value' => $transaction->value,
+            'value' => floatval($transaction->value),
         ];
     }
 }
