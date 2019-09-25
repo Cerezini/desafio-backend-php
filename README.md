@@ -11,9 +11,9 @@ Na solução do desafio foram tomadas as seguintes decisões:
 
 ## Instruções
 
-Execute os comandos a seguir para realizar o correto setup da aplicação:
+Execute os comandos a seguir, um por vez, para realizar o correto setup da aplicação:
 ```
-docker-compose up --build \
+docker-compose up --build -d \
 && docker exec -it users-api-php composer install \
 && docker exec -it users-api-php php artisan migrate
 ```
