@@ -5,6 +5,8 @@ use Laravel\Lumen\Testing\DatabaseTransactions;
 
 class TransactionsTest extends TestCase
 {
+    use DatabaseTransactions;
+
     public function testCreateTransaction()
     {
         $transactionRequest = [
