@@ -17,16 +17,19 @@ class UsersTest extends TestCase
             ->seeJson($user);
     }
 
-    // public function testCreateConsumer()
-    // {
-    //     $consumerRequest = [
-    //         'user_id' => 1,
-    //         'username' => 'potatoGirlConsumer',
-    //     ];
+    public function testCreateConsumer()
+    {
+        $user = factory('App\Models\User')->create();
+        
+        $consumer = factory('App\Models\Consumer')
+            ->make([
+                'user_id' => $user->id
+            ])
+            ->toArray();
 
-    //     $this->post('/users/consumers', $consumerRequest)
-    //         ->seeJson($consumerRequest);
-    // }
+        $this->post('/users/consumers', $consumer)
+            ->seeJson($consumer);
+    }
 
     // public function testCreateSeller()
     // {
