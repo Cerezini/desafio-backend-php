@@ -9,25 +9,38 @@ class TransactionsTest extends TestCase
 
     public function testCreateTransaction()
     {
-        $transactionRequest = [
-            'payee_id' => 5,
-            'payer_id' => 6,
-            'value' => 25.69
-        ];
+        $users = factory('App\Models\User', 2)->create();
 
-        $this->post('/transactions', $transactionRequest)
-            ->seeJson($transactionRequest);
+        $transaction = factory('App\Models\Transaction')
+            ->make([
+                'payee_id' => $users[0]->id,
+                'payer_id' => $users[1]->id,
+            ])
+            ->toArray();
+
+        unset($transaction['transaction_date']);
+
+        $this->post('/transactions', $transaction)
+            ->seeJson($transaction);
     }
 
     public function testGetTransaction()
     {
-        $transactionRequest = [
-            'payee_id' => 5,
-            'payer_id' => 6,
-            'value' => 25.69
-        ];
+        $users = factory('App\Models\User', 2)->create();
 
-        $this->get('/transactions/3')
-            ->seeJson($transactionRequest);
+        $transaction = factory('App\Models\Transaction')
+            ->create([
+                'payee_id' => $users[0]->id,
+                'payer_id' => $users[1]->id,
+            ]);
+
+        $this->get('/transactions/' . $transaction->id)
+            ->seeJson([
+                'id' => $transaction->id,
+                'payee_id' => $transaction->payee_id,
+                'payer_id' => $transaction->payer_id,
+                'transaction_date' => $transaction->transaction_date->toJson(),
+                'value' => $transaction->value
+            ]);
     }
 }
