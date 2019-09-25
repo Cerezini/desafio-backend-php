@@ -45,32 +45,53 @@ class UsersTest extends TestCase
             ->seeJson($seller);
     }
 
-    // public function testGetUsers()
-    // {
-    //     $this->get('/users?q=Potato')
-    //         ->seeJson([ 
-    //             'id' => 1 
-    //         ]);
-    // }
+    public function testGetUsers()
+    {
+        $usersMario = factory('App\Models\User', 3)->create([
+            'full_name' => 'Mario da Silva Costa'
+        ]);
 
-    // public function testGetUser()
-    // {
-    //     $user = [
-    //         'accounts' => [
-    //             'consumer' => null,
-    //             'seller' => null
-    //         ],
-    //         'user' => [
-    //             'cpf' => '10133111583',
-    //             'email' => 'potatogirl2@gmail.com',
-    //             'full_name' => 'Potato Girl',
-    //             'id' => 1,
-    //             'password' => '444555',
-    //             'phone_number' => '27992215588'
-    //         ]
-    //     ];
+        $usersPedro = factory('App\Models\User', 3)->create([
+            'full_name' => 'Pedro Coelho Martins'
+        ]);
 
-    //     $this->get('/users/1')
-    //         ->seeJson($user);
-    // }
+        $consumer = factory('App\Models\Consumer')->create([
+            'user_id' => $usersMario[0]->id,
+            'username' => 'Ma1926684'
+        ]);
+
+        $seller = factory('App\Models\Seller')->create([
+            'user_id' => $usersMario[1]->id,
+            'username' => 'MaVendedor58'
+        ]);
+
+        $this->get('/users?q=Ma')
+            ->seeJson([
+                'id' => $seller->user_id    
+            ]);
+    }
+
+    public function testGetUser()
+    {
+        $user = factory('App\Models\User')->create();
+
+        $consumer = factory('App\Models\Consumer')->create([
+            'user_id' => $user->id,
+        ]);
+
+        $seller = factory('App\Models\Seller')->create([
+            'user_id' => $user->id,
+        ]);
+
+        $userResponse = [
+            'accounts' => [
+                'consumer' => $consumer->toArray(),
+                'seller' => $seller->toArray()
+            ],
+            'user' => $user->toArray()
+        ];
+
+        $this->get('/users/' . $user->id)
+            ->seeJson($userResponse);
+    }
 }
