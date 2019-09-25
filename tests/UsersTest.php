@@ -31,19 +31,19 @@ class UsersTest extends TestCase
             ->seeJson($consumer);
     }
 
-    // public function testCreateSeller()
-    // {
-    //     $sellerRequest = [
-    //         'cnpj' => '11111111558524',
-    //         'fantasy_name' => 'Potato Girl Tapiocaria',
-    //         'social_name' => 'Potato Girl Tapiocaria LTDA',
-    //         'user_id' => 1,
-    //         'username' => 'potatoGirlSeller'
-    //     ];
+    public function testCreateSeller()
+    {
+        $user = factory('App\Models\User')->create();
 
-    //     $this->post('/users/sellers', $sellerRequest)
-    //         ->seeJson($sellerRequest);
-    // }
+        $seller = factory('App\Models\Seller')
+            ->make([
+                'user_id' => $user->id
+            ])
+            ->toArray();
+
+        $this->post('/users/sellers', $seller)
+            ->seeJson($seller);
+    }
 
     // public function testGetUsers()
     // {
